@@ -3,6 +3,6 @@ defmodule ToDoWeb.HealthController do
   use ToDoWeb, :controller
 
   def health(conn, _params) do
-    json(conn, %{endpoint: "health", status: "👍🏻 💚"})
+    json(conn, :ok)
   end
 end
