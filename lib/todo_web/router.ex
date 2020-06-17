@@ -15,6 +15,12 @@ defmodule ToDoWeb.Router do
   end
 
   scope "/", ToDoWeb do
+    pipe_through :api
+
+    get "/health", HealthController, :health
+  end
+
+  scope "/", ToDoWeb do
     pipe_through :browser
 
     live "/", PageLive, :index
