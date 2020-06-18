@@ -1,39 +1,34 @@
 defmodule ToDoWeb.PageLive do
   use ToDoWeb, :live_view
 
+  @topic "tasks"
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    ToDoWeb.Endpoint.subscribe(@topic)
+    {:ok, assign(socket, query: "", tasks: tasks())}
   end
 
   @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+  def handle_event("create", %{"title" => title}, socket) do
+    ToDo.Tasks.create_task(%{title: title})
+    ToDoWeb.Endpoint.broadcast_from!(self(), @topic, "created", %{})
+    {:noreply, assign(socket, tasks: tasks())}
+  end
+
+  def handle_event("complete", %{"task-id" => task_id}, socket) do
+    task = ToDo.Tasks.get_task!(task_id)
+    ToDo.Tasks.update_task(task, %{completed: true})
+    ToDoWeb.Endpoint.broadcast_from!(self(), @topic, "completed", %{})
+    {:noreply, assign(socket, tasks: tasks())}
   end
 
   @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
-
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
-    end
+  def handle_info(%{event: _event}, socket) do
+    {:noreply, assign(socket, tasks: tasks())}
   end
 
-  defp search(query) do
-    if not ToDoWeb.Endpoint.config(:code_reloader) do
-      raise "action disabled when not in development"
-    end
-
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
+  defp tasks do
+    ToDo.Tasks.list_tasks([{:completed, false}])
   end
 end
