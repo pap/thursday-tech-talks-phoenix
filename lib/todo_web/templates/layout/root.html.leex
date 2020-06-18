@@ -10,21 +10,29 @@
     <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-    <header>
-      <section class="container">
-        <nav role="navigation">
-          <ul>
-            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
-            <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
-            <% end %>
-          </ul>
-        </nav>
-        <a href="https://phoenixframework.org/" class="phx-logo">
-          <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
-        </a>
-      </section>
-    </header>
-    <%= @inner_content %>
+    <nav class="navbar is-info">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item brand-text" ><strong>TODO</strong>&nbsp | Thursday Tech Talks</i></a>
+          <div class="navbar-burger burger" data-target="navMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      <div id="navMenu" class="navbar-menu">
+        <div class="navbar-end">
+          <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
+            <%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home), target: "_blank", class: "navbar-item" %>
+          <% end %>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container is-fluid">
+      <div class="column is-full">
+        <%= @inner_content %>
+      </div>
+    </div>
   </body>
 </html>
